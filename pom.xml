@@ -56,5 +56,13 @@
           <version>${junit.version}</version>
           <scope>test</scope>
         </dependency>
+
+        <!-- Amplify-alpha to support App Hosting -->
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>amplify-alpha</artifactId>
+            <version>2.111.0-alpha.0</version>
+        </dependency>
+
     </dependencies>
 </project>

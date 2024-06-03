@@ -1,16 +1,13 @@
 package com.myorg;
 
 import software.amazon.awscdk.App;
-import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StackProps;
-
-import java.util.Arrays;
 
 public class CdkJavaCognitoAmplifyHostingApp {
     public static void main(final String[] args) {
         App app = new App();
 
-        new CdkJavaCognitoAmplifyHostingStack(app, "CdkJavaCognitoAmplifyHostingStack", StackProps.builder()
+        new CognitoHostingStack(app, "CdkJavaCognitoAmplifyHostingStack", StackProps.builder()
                 // If you don't specify 'env', this stack will be environment-agnostic.
                 // Account/Region-dependent features and context lookups will not work,
                 // but a single synthesized template can be deployed anywhere.
