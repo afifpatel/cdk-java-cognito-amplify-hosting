@@ -145,7 +145,7 @@ public class CognitoHostingStack extends Stack {
 
         // Environment variables map
         Map<String, String> environmentVariables = Map.of(
-                "AWS_ROLE_ARN", amplifyRole.getRoleArn()
+                "AMPLIFY_HOSTING_ROLE_ARN", amplifyRole.getRoleArn()
         );
 
         // Add branches with environment variables
