@@ -6,17 +6,14 @@ import software.amazon.awscdk.services.amplify.alpha.App;
 import software.amazon.awscdk.services.codebuild.BuildSpec;
 import software.amazon.awscdk.services.cognito.*;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
+import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
-import software.amazon.awscdk.services.secretsmanager.Secret;
-import software.amazon.awscdk.services.secretsmanager.SecretAttributes;
 import software.constructs.Construct;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-// import software.amazon.awscdk.Duration;
-// import software.amazon.awscdk.services.sqs.Queue;
 
 public class CognitoHostingStack extends Stack {
     public CognitoHostingStack(final Construct scope, final String id) {
@@ -76,6 +73,18 @@ public class CognitoHostingStack extends Stack {
         // issue URL needs to be set if using cognito login UI.
 
         // Amplify Stack
+        // Create the IAM role
+        Role amplifyRole = Role.Builder.create(this, "AmplifyRole")
+                .assumedBy(new ServicePrincipal("amplify.amazonaws.com"))
+                .managedPolicies(List.of(ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")))
+                .build();
+
+        // Attach policy to the role
+        amplifyRole.addToPolicy(PolicyStatement.Builder.create()
+                .actions(List.of("sts:AssumeRole"))
+                .resources(List.of("*"))
+                .build());
+
         App amplifyApp = App.Builder.create(this,"next-auth-app-amplify-hosting")
                 .appName("next-auth-app-amplify-hosting")
                 .sourceCodeProvider(GitHubSourceCodeProvider.Builder.create()
@@ -134,12 +143,21 @@ public class CognitoHostingStack extends Stack {
                 .addEnvironment("_CUSTOM_IMAGE","amplify:al2023")
                 .addEnvironment("_LIVE_UPDATES","[{\"pkg\":\"next-version\",\"type\":\"internal\",\"version\":\"latest\"}]");
 
+        // Environment variables map
+        Map<String, String> environmentVariables = Map.of(
+                "AWS_ROLE_ARN", amplifyRole.getRoleArn()
+        );
+
+        // Add branches with environment variables
         Branch main = amplifyApp.addBranch("main", BranchOptions.builder()
                 .stage("PRODUCTION")
+                .environmentVariables(environmentVariables)
                 .build());
+
         Branch dev = amplifyApp.addBranch("dev", BranchOptions.builder()
                 .stage("DEVELOPMENT")
                 .performanceMode(true)
+                .environmentVariables(environmentVariables)
                 .build());
     }
 }
