@@ -88,43 +88,38 @@ public class CognitoHostingStack extends Stack {
                 .buildSpec(BuildSpec.fromObjectToYaml(
                         new LinkedHashMap<>() {{
                             put("version", "1.0");
-                            put("applications", List.of(
-                                    new LinkedHashMap<>() {{
-                                        put("appRoot", "next-tailwind-auth");
-                                        put("frontend", new LinkedHashMap<>() {{
-                                            put("buildPath", "next-tailwind-auth");
-                                            put("phases", new LinkedHashMap<>() {{
-                                                put("preBuild", new LinkedHashMap<>() {{
-                                                    put("commands", List.of(
-                                                            "npm ci"
-                                                    )); //clean install
-                                                }});
-                                                put("build", new LinkedHashMap<>() {{
-                                                    put("commands", List.of(
-                                                            "npm run build",
-                                                            "echo \"NEXTAUTH_SECRET=17cM2QJHbi9VuO4Vhqt6COMIaqXMV8Z5lU1NCZ325Qg=\" >> .env.production",
-                                                            """
-                                                                    if [ "$AWS_BRANCH" = "main" ]; then
-                                                                      echo "NEXTAUTH_URL=https://main.${AWS_APP_ID}.amplifyapp.com/" >> .env.production
-                                                                    elif [ "$AWS_BRANCH" = "dev" ]; then
-                                                                      echo "NEXTAUTH_URL=https://dev.${AWS_APP_ID}.amplifyapp.com/" >> .env.production
-                                                                    fi
-                                                            """,
-                                                            "echo \"COGNITO_ID="+userPool.getUserPoolId()+"\" >> .env.production",
-                                                            "echo \"COGNITO_CLIENT_ID"+userPoolClient.getUserPoolClientId()+"\" >> .env.production"
-                                                    )); //set postBuild if needed
-                                                }});
-                                            }});
-                                            put("artifacts", new LinkedHashMap<>() {{
-                                                put("files", List.of("**/*"));
-                                                put("baseDirectory", ".next");
-                                            }});
-                                            put("cache", new LinkedHashMap<>() {{
-                                                put("paths", List.of("node_modules/**/*", ".next/cache/**/*"));
-                                            }});
-                                        }});
-                                    }}
-                            ));
+                            put("frontend", new LinkedHashMap<>() {{
+                                put("buildPath", "next-tailwind-auth");
+                                put("phases", new LinkedHashMap<>() {{
+                                    put("preBuild", new LinkedHashMap<>() {{
+                                        put("commands", List.of(
+                                                "npm ci"
+                                        )); //clean install
+                                    }});
+                                    put("build", new LinkedHashMap<>() {{
+                                        put("commands", List.of(
+                                                "npm run build",
+                                                "echo \"NEXTAUTH_SECRET=17cM2QJHbi9VuO4Vhqt6COMIaqXMV8Z5lU1NCZ325Qg=\" >> .env.production",
+                                                """
+                                                        if [ "$AWS_BRANCH" = "main" ]; then
+                                                          echo "NEXTAUTH_URL=https://main.${AWS_APP_ID}.amplifyapp.com/" >> .env.production
+                                                        elif [ "$AWS_BRANCH" = "dev" ]; then
+                                                          echo "NEXTAUTH_URL=https://dev.${AWS_APP_ID}.amplifyapp.com/" >> .env.production
+                                                        fi
+                                                """,
+                                                "echo \"COGNITO_ID="+userPool.getUserPoolId()+"\" >> .env.production",
+                                                "echo \"COGNITO_CLIENT_ID"+userPoolClient.getUserPoolClientId()+"\" >> .env.production"
+                                        )); //set postBuild if needed
+                                    }});
+                                }});
+                                put("artifacts", new LinkedHashMap<>() {{
+                                    put("files", List.of("**/*"));
+                                    put("baseDirectory", ".next");
+                                }});
+                                put("cache", new LinkedHashMap<>() {{
+                                    put("paths", List.of("node_modules/**/*", ".next/cache/**/*"));
+                                }});
+                            }});
                         }}
                 ))
                 .build();
